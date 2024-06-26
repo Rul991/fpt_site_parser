@@ -1,6 +1,3 @@
-import os
-import shutil
-
 import requests
 
 def file_reader(file: str, encoding = "utf-8"):
