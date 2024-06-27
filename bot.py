@@ -12,6 +12,13 @@ GLOBAL = {
     'is_bot_must_work': False
 }
 
+def is_not_have_admin_right(m):
+    if not is_user_in_white_list(get_username(m)):
+        info(m, bot, 'Вы не обладаете правами администратора!')
+        return True
+    
+    return False
+
 def get_checking_interval(m):
     try:
         interval_time = abs(int(m.text))
@@ -67,12 +74,10 @@ def start(m):
         info(m, bot, 'Бот уже запущен')
         return
 
-    GLOBAL['is_bot_must_work'] = True
-
-    if not is_user_in_white_list(get_username(m)):
-        info(m, bot, 'Вы не являетесь админом!')
+    if is_not_have_admin_right(m):
         return
     
+    GLOBAL['is_bot_must_work'] = True
 
     info(m, bot, 'Бот начал работу!')
 
@@ -95,12 +100,9 @@ def start(m):
 
 @bot.message_handler(['stop'])
 def stop(m):
-    if not is_user_in_white_list(get_username(m)):
-        info(m, bot, 'Вы не являетесь админом!')
-        return
-
-    info(m, bot, 'Бот остановлен!')
-    GLOBAL['is_bot_must_work'] = False
+    if not is_not_have_admin_right(m):
+        info(m, bot, 'Бот остановлен!')
+        GLOBAL['is_bot_must_work'] = False
 
 @bot.message_handler(commands=['restart'])
 def restart(m):
@@ -118,12 +120,9 @@ def password(m):
 
 @bot.message_handler(commands=['edit_interval'])
 def edit_interval(m):
-    if not is_user_in_white_list(get_username(m)):
-        info(m, bot, 'Вы не являетесь админом!')
-        return
-    
-    info(m, bot, "Укажите интервал времени(в секундах), когда будет проверяться новые новости с сайта.")
-    bot.register_next_step_handler(m, get_checking_interval)
+    if not is_not_have_admin_right(m):
+        info(m, bot, "Укажите интервал времени(в секундах), когда будет проверяться новые новости с сайта.")
+        bot.register_next_step_handler(m, get_checking_interval)
 
 print('Bot is starting!')
-bot.polling()
+bot.polling(skip_pending=True)
